@@ -32,6 +32,8 @@ Template for new versions:
 
 ## Fixes
 
+- `gui/siegemanager`: fix nil index if there are no siege engines on the map
+
 ## Misc Improvements
 
 ## Removed
