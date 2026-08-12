@@ -38,6 +38,158 @@ Template for new versions:
 
 ## Removed
 
+# 53.15-r2
+
+## New Tools
+
+## New Features
+
+## Fixes
+- `combine`: stopgap fix for incorrectly combining dyes, no longer affects dyes
+- `gui/rename`: fix script error that sometimes caused the script to malfunction when started from the Launcher.
+
+## Misc Improvements
+
+## Removed
+
+# 53.15-r1
+
+## New Tools
+- `machine-toggle`: interface for toggling gear assemblies, as well as pressure plates (previously in `trackstop`) (available only if ``armok`` tools are shown)
+
+## New Features
+
+## Fixes
+- `add-recipe`: fix to include incorrectly excluded recipes
+- `gui/control-panel`: fixed incorrect description of deteriorate commands
+- `gui/petitions`: fix deity display
+
+## Misc Improvements
+- `trackstop`: ``pressureplate`` overlay moved to `machine-toggle` as an ``armok`` tool
+
+## Removed
+
+# 53.14-r2
+
+## New Tools
+
+## New Features
+
+## Fixes
+
+## Misc Improvements
+
+## Removed
+- ``gui/logcleaner``: Removed
+
+# 53.14-r1
+
+## New Tools
+
+## New Features
+
+## Fixes
+- `caravan`: fix ethics warning for wooden weapons
+- `gui/control-panel`: fixed inconsistent space in command help ("tweak" -> "tweak ", like with other commands)
+- `gui/siegemanager`: consistently set the initial filter to "All"
+- `immortal-cravings`: also take care of immortal units with alcohol dependence
+
+## Misc Improvements
+
+## Removed
+
+# 53.11-r2
+
+## New Tools
+
+## New Features
+
+## Fixes
+- `gui/rename`: skip ``NONE`` when iterating through language name options
+- `quickfort`: work orders will no longer be created with a repetition frequency of ``NONE``
+
+## Misc Improvements
+
+## Removed
+
+# 53.10-r2
+
+## New Tools
+- `gui/logcleaner`: graphical overlay for configuring the logcleaner plugin with enable and filter toggles.
+
+## New Features
+- `trackstop`: can now modify pressure plates; permits minecart and creature triggers to be set beyond normal sensitivity
+
+## Fixes
+- `gui/rename`: added check for entity_id input in get_target function
+- `prioritize`: Fix the overlay appearing where it should not when following a unit
+
+## Misc Improvements
+- `gui/notify`: reduced severity of the missing nemesis records warning if no units on the map are affected.  clarified wording.
+
+## Removed
+
+# 53.10-r1
+
+## New Tools
+
+## New Features
+- `gui/quickcmd`: added custom command names and option to display command output
+- `gui/notify`: new notification type: missing nemesis records; displays a warning message about game corruption.
+
+## Fixes
+
+## Misc Improvements
+
+## Removed
+
+# 53.07-r1
+
+## New Tools
+- `fix/codex-pages`: add pages to written content that have unspecified page counts.
+- `gui/keybinds`: gui for managing and saving custom keybindings
+
+## New Features
+
+## Fixes
+- `empty-bin`: renamed ``--liquids`` parameter to ``--force`` and made emptying of containers (bags) with powders contingent on that parameter. Previously powders would just always get disposed.
+
+## Misc Improvements
+- `combine`: try harder to find the currently-selected stockpile
+
+## Removed
+
+# 53.06-r1
+
+## New Tools
+
+## New Features
+
+## Fixes
+- `gui/design`: designating a single-level stair construction now properly follows the selected stair type.
+- `gui/design`: adjusted conflicting keybinds, diagonal line reverse becoming ``R`` and bottom stair type becoming ``g``.
+- `modtools/set-personality`: use correct caste trait ranges; fixes `gui/gm-unit` being unable to correctly randomize traits or set traits to caste average
+
+## Misc Improvements
+
+## Removed
+
+# 53.04-r1
+
+## New Tools
+- `gui/siegemanager`: manage your siege engines at a glance.
+
+## New Features
+- `item`: new ``--total-quality`` option for use in conjunction with ``--min-quality`` or ``--max-quality`` to filter items according to their total quality
+
+## Fixes
+
+## Misc Improvements
+- `gui/design`: can now construct reinforced walls
+- `quickfort`: support for reinforced walls and bolt throwers
+
+## Removed
+
 # 53.01-r1
 
 ## New Tools

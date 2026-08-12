@@ -1,4 +1,4 @@
--- Overlay to allow changing track stop friction and dump direction after construction
+-- Overlay to allow changing track stop and roller settings after construction
 --@ module = true
 
 if not dfhack_flags.module then
@@ -9,6 +9,8 @@ local gui = require('gui')
 local widgets = require('gui.widgets')
 local overlay = require('plugins.overlay')
 local utils = require('utils')
+
+local getBuild = dfhack.gui.getSelectedBuilding
 
 local NORTH = 'North '..string.char(24)
 local EAST = 'East '..string.char(26)
@@ -30,7 +32,6 @@ local FRICTION_MAP = {
   [HIGH] = 10000,
   [MAX] = 50000,
 }
-
 local FRICTION_MAP_REVERSE = utils.invert(FRICTION_MAP)
 
 local SPEED_MAP = {
@@ -40,7 +41,6 @@ local SPEED_MAP = {
   [HIGHER] = 40000,
   [MAX] = 50000,
 }
-
 local SPEED_MAP_REVERSE = utils.invert(SPEED_MAP)
 
 local DIRECTION_MAP = {
@@ -49,7 +49,6 @@ local DIRECTION_MAP = {
   [SOUTH] = df.screw_pump_direction.FromNorth,
   [WEST] = df.screw_pump_direction.FromEast,
 }
-
 local DIRECTION_MAP_REVERSE = utils.invert(DIRECTION_MAP)
 
 TrackStopOverlay = defclass(TrackStopOverlay, overlay.OverlayWidget)
@@ -65,62 +64,58 @@ TrackStopOverlay.ATTRS{
 }
 
 function TrackStopOverlay:setFriction(friction)
-  dfhack.gui.getSelectedBuilding().track_stop_info.friction = FRICTION_MAP[friction]
+  getBuild().track_stop_info.friction = FRICTION_MAP[friction]
 end
 
 function TrackStopOverlay:getDumpDirection()
-  local track_stop_info = dfhack.gui.getSelectedBuilding().track_stop_info
-  local use_dump = track_stop_info.track_flags.use_dump
-  local dump_x_shift = track_stop_info.dump_x_shift
-  local dump_y_shift = track_stop_info.dump_y_shift
+  local info = getBuild().track_stop_info
+  local x = info.dump_x_shift
+  local y = info.dump_y_shift
 
-  if not use_dump then
+  if not info.track_flags.use_dump then
     return NONE
   else
-    if dump_x_shift == 0 and dump_y_shift == -1 then
+    if x == 0 and y == -1 then
       return NORTH
-    elseif dump_x_shift == 1 and dump_y_shift == 0 then
+    elseif x == 1 and y == 0 then
       return EAST
-    elseif dump_x_shift == 0 and dump_y_shift == 1 then
+    elseif x == 0 and y == 1 then
       return SOUTH
-    elseif dump_x_shift == -1 and dump_y_shift == 0 then
+    elseif x == -1 and y == 0 then
       return WEST
     end
   end
 end
 
 function TrackStopOverlay:setDumpDirection(direction)
-  local track_stop_info = dfhack.gui.getSelectedBuilding().track_stop_info
+  local info = getBuild().track_stop_info
 
   if direction == NONE then
-    track_stop_info.track_flags.use_dump = false
-    track_stop_info.dump_x_shift = 0
-    track_stop_info.dump_y_shift = 0
+    info.track_flags.use_dump = false
+    info.dump_x_shift = 0
+    info.dump_y_shift = 0
   elseif direction == NORTH then
-    track_stop_info.track_flags.use_dump = true
-    track_stop_info.dump_x_shift = 0
-    track_stop_info.dump_y_shift = -1
+    info.track_flags.use_dump = true
+    info.dump_x_shift = 0
+    info.dump_y_shift = -1
   elseif direction == EAST then
-    track_stop_info.track_flags.use_dump = true
-    track_stop_info.dump_x_shift = 1
-    track_stop_info.dump_y_shift = 0
+    info.track_flags.use_dump = true
+    info.dump_x_shift = 1
+    info.dump_y_shift = 0
   elseif direction == SOUTH then
-    track_stop_info.track_flags.use_dump = true
-    track_stop_info.dump_x_shift = 0
-    track_stop_info.dump_y_shift = 1
+    info.track_flags.use_dump = true
+    info.dump_x_shift = 0
+    info.dump_y_shift = 1
   elseif direction == WEST then
-    track_stop_info.track_flags.use_dump = true
-    track_stop_info.dump_x_shift = -1
-    track_stop_info.dump_y_shift = 0
+    info.track_flags.use_dump = true
+    info.dump_x_shift = -1
+    info.dump_y_shift = 0
   end
 end
 
 function TrackStopOverlay:render(dc)
-  local friction_cycle = self.subviews.friction
-  local friction = dfhack.gui.getSelectedBuilding().track_stop_info.friction
-
-  friction_cycle:setOption(FRICTION_MAP_REVERSE[friction])
-
+  local f = getBuild().track_stop_info.friction
+  self.subviews.friction:setOption(FRICTION_MAP_REVERSE[f])
   self.subviews.dump_direction:setOption(self:getDumpDirection())
 
   TrackStopOverlay.super.render(self, dc)
@@ -140,7 +135,7 @@ function TrackStopOverlay:init()
         WEST,
       },
       view_id='dump_direction',
-      on_change=function(val) self:setDumpDirection(val) end,
+      on_change=self:callback('setDumpDirection'),
     },
     widgets.CycleHotkeyLabel{
       label='Friction',
@@ -154,7 +149,7 @@ function TrackStopOverlay:init()
         {label=MAX, value=MAX, pen=COLOR_RED},
       },
       view_id='friction',
-      on_change=function(val) self:setFriction(val) end,
+      on_change=self:callback('setFriction'),
     },
   }
 end
@@ -171,39 +166,20 @@ RollerOverlay.ATTRS{
   frame_background=gui.CLEAR_PEN,
 }
 
-function RollerOverlay:getDirection()
-  local building = dfhack.gui.getSelectedBuilding()
-  local direction = building.direction
-
-  return DIRECTION_MAP_REVERSE[direction]
-end
-
 function RollerOverlay:setDirection(direction)
-  local building = dfhack.gui.getSelectedBuilding()
-
-  building.direction = DIRECTION_MAP[direction]
-end
-
-function RollerOverlay:getSpeed()
-  local building = dfhack.gui.getSelectedBuilding()
-  local speed = building.speed
-
-  return SPEED_MAP_REVERSE[speed]
+  getBuild().direction = DIRECTION_MAP[direction]
 end
 
 function RollerOverlay:setSpeed(speed)
-  local building = dfhack.gui.getSelectedBuilding()
-
-  building.speed = SPEED_MAP[speed]
+  getBuild().speed = SPEED_MAP[speed]
 end
 
 function RollerOverlay:render(dc)
-  local building = dfhack.gui.getSelectedBuilding()
+  local b = getBuild()
+  self.subviews.direction:setOption(DIRECTION_MAP_REVERSE[b.direction])
+  self.subviews.speed:setOption(SPEED_MAP_REVERSE[b.speed])
 
-  self.subviews.direction:setOption(DIRECTION_MAP_REVERSE[building.direction])
-  self.subviews.speed:setOption(SPEED_MAP_REVERSE[building.speed])
-
-  TrackStopOverlay.super.render(self, dc)
+  RollerOverlay.super.render(self, dc)
 end
 
 function RollerOverlay:init()
@@ -214,7 +190,7 @@ function RollerOverlay:init()
       key='CUSTOM_CTRL_X',
       options={NORTH, EAST, SOUTH, WEST},
       view_id='direction',
-      on_change=function(val) self:setDirection(val) end,
+      on_change=self:callback('setDirection'),
     },
     widgets.CycleHotkeyLabel{
       label='Speed',
@@ -228,7 +204,7 @@ function RollerOverlay:init()
         {label=MAX, value=MAX, pen=COLOR_RED},
       },
       view_id='speed',
-      on_change=function(val) self:setSpeed(val) end,
+      on_change=self:callback('setSpeed'),
     },
   }
 end
