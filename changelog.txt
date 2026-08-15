@@ -28,6 +28,8 @@ Template for new versions:
 
 ## New Tools
 
+- `gui/export-world-map`: New GUI tool to configure world map exports from the embark selection screen.
+
 ## New Features
 
 ## Fixes
