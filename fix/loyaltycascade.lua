@@ -4,7 +4,7 @@
 local makeown = reqscript('makeown')
 
 -- Checks if a unit is a former member of a given entity as well as it's
--- current enemy.
+-- current enemy (assumes valid historical figure with entity links).
 local function getUnitRenegade(unit, entity_id)
     local unit_entity_links = df.historical_figure.find(unit.hist_figure_id).entity_links
     local former_index = nil
@@ -29,6 +29,8 @@ local function getUnitRenegade(unit, entity_id)
     return former_index, enemy_index
 end
 
+-- convert unit to new entity
+-- (assumes valid historical figure with entity links)
 local function convertUnit(unit, entity_id, former_index, enemy_index)
     local unit_entity_links = df.historical_figure.find(unit.hist_figure_id).entity_links
 
@@ -46,6 +48,13 @@ local function fixUnit(unit)
     local fixed = false
 
     local unit_name = dfhack.units.getReadableName(unit)
+
+    -- utility functions assume valid historical figure id
+    if not df.historical_figure.find(unit.hist_figure_id) then
+        print(('%s: skipping citizen without historical figure: %s'):format(dfhack.current_script_name(), unit_name))
+        return
+    end
+
     local former_civ_index, enemy_civ_index = getUnitRenegade(unit, df.global.plotinfo.civ_id)
     local former_group_index, enemy_group_index = getUnitRenegade(unit, df.global.plotinfo.group_id)
 
