@@ -416,7 +416,7 @@ end
 function SiegeEngineList:set_selected_action(action)
     local _, selected = self.subviews.list:getSelected()
 
-    local successful = set_siege_engine_action({selected.data}, action)
+    local successful = selected and set_siege_engine_action({selected.data}, action)
     if not successful then
         self:refresh_view(true)
         return
@@ -464,6 +464,10 @@ function SiegeEngineList:onInput(keys)
     self:set_selected_action(action)
 end
 
+function SiegeEngineList:empty()
+    return not self.subviews.list:getSelected()
+end
+
 -- SiegeManager
 SiegeManager = defclass(SiegeManager, widgets.Window)
 SiegeManager.ATTRS = {
@@ -503,7 +507,10 @@ function SiegeManager:init()
             frame={b=0},
             key='CUSTOM_CTRL_C',
             label='Reveal in World',
-            on_activate=self:callback('reveal_selected')
+            on_activate=self:callback('reveal_selected'),
+            enabled = function ()
+                return not self.subviews.list:empty()
+            end
         },
     })
 
@@ -514,7 +521,10 @@ function SiegeManager:init()
                 key = action_button_keybinds[i],
                 key_sep = i == #action_button_order and ': ' or '',
                 label = i == #action_button_order and 'Set Action' or '',
-                on_activate = self:callback('set_action', action_button)
+                on_activate = self:callback('set_action', action_button),
+                enabled = function ()
+                    return not self.subviews.list:empty()
+                end
             }
         })
     end
