@@ -15,7 +15,7 @@ if args[1] then
     cmd = args[1]:sub(1, 1)
 end
 if cmd == "h" or cmd == "?" then
-    print("The current weather is "..df.weather_type[dfhack.world.ReadCurrentWeather()])
+    print("The current weather is "..df.weather_type[dfhack.maps.getCurrentWeather()])
     print(helpstr)
 elseif cmd == "c" then
     dfhack.world.SetCurrentWeather(df.weather_type.None)
