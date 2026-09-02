@@ -4,6 +4,8 @@ local gui = require('gui')
 local widgets = require('gui.widgets')
 
 local roads = reqscript('internal/export-world-map/export-roads')
+local layers = reqscript('internal/export-world-map/export-layers')
+local pops = reqscript('internal/export-world-map/export-pops')
 
 ---@type df.viewscreen_choose_start_sitest
 local viewscreen = dfhack.gui.getDFViewscreen(true)
@@ -80,8 +82,6 @@ local function invokeExport(by_world, by_date, fn)
 end
 
 function ExportMap:startExports()
-    self.subviews.indicator_label:setText("working ...")
-
     local by_date = self.subviews.by_date:getOptionValue()
     local by_world = by_date or self.subviews.by_world:getOptionValue()
 
@@ -90,8 +90,6 @@ function ExportMap:startExports()
             invokeExport(by_world, by_date, export.command)
         end
     end
-
-    self.subviews.indicator_label:setText("")
 end
 
 ---launch command from the C++ plugin
@@ -109,7 +107,9 @@ exports = {
     { id = 2, key = 'rivers', desc = 'River Export (rivers.csv)' , enabled = true, command = pluginCommand("rivers") },
     { id = 3, key = 'sites', desc = 'Site Export (sites.csv)' , enabled = true, command = pluginCommand("sites") },
     { id = 4, key = 'elevation', desc = 'Elevation Grid Export (elevation.dat, elevation.vrt)' , enabled = true, command = pluginCommand("elevation") },
-    { id = 5, key = 'roads', desc = 'Road Export (roads.geojson)' , enabled = true, command = roads.export }
+    { id = 5, key = 'roads', desc = 'Road Export (roads.geojson)' , enabled = true, command = roads.export },
+    { id = 6, key = 'layers', desc = 'Export Geological Layers (layers.csv)' , enabled = true, command = layers.export },
+    { id = 7, key = 'pops', desc = 'Export Plant and Animal Populations (*_pops.csv)' , enabled = true, command = pops.export }
 }
 
 local SELECTED_ICON = dfhack.pen.parse{ch=string.char(251), fg=COLOR_LIGHTGREEN}
@@ -158,7 +158,7 @@ function ExportMap:init()
             text = "Select exports to place in dfhack-config/map-export:",
         },
         widgets.List{
-            frame={t=9, h = 6},
+            frame={t=9, h = 7},
             view_id = "export_list",
             on_submit=self:callback("toggleExport"),
             icon_width = 2,
@@ -167,7 +167,7 @@ function ExportMap:init()
         widgets.CycleHotkeyLabel{
             view_id = 'by_world',
             key = 'CUSTOM_W',
-            frame = { w = 40, h = 1 , t = 15, l = 0 },
+            frame = { w = 40, h = 1 , t = 17, l = 0 },
             options = { { label = 'Yes' , value = true, pen = COLOR_LIGHTGREEN}, { label = 'No' , value = false} },
             initial_option = false,
             label = "Create folder for world name",
@@ -180,7 +180,7 @@ function ExportMap:init()
         widgets.CycleHotkeyLabel{
             view_id = 'by_date',
             key = 'CUSTOM_D',
-            frame = { w = 40, h = 1 , t = 16, l = 0 },
+            frame = { w = 40, h = 1 , t = 18, l = 0 },
             options = { { label = 'Yes' , value = true, pen = COLOR_LIGHTGREEN}, { label = 'No' , value = false} },
             initial_option = false,
             label = "Create subfolder for world date",
@@ -191,18 +191,13 @@ function ExportMap:init()
             end
         },
         widgets.TextButton{
-            frame = { w = 18, h = 1 , t = 18 },
+            frame = { w = 18, h = 1 , t = 20 },
             label = "Run Map Exports!",
             on_click = self:callback('startExports'),
             enabled = function()
                 local cur,max = getLoadedTileRatio()
                 return cur == max
             end
-        },
-        widgets.Label{
-            view_id = 'indicator_label',
-            frame={ t = 20 , h = 1 },
-            text = ""
         }
     }
     self:updateRatio()

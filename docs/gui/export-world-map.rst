@@ -5,10 +5,16 @@ gui/export-world-map
     :summary: Export world map data for GIS and other external tools.
     :tags: inspection embark map
 
-This tool provides a GUI for the ``export-world-map`` plugin and a number of
+This tool provides a GUI for the `export-world-map` plugin and a number of
 additional exports written in Lua. Moreover, this tool automates the process of
 scrolling around the embark map to generate the region tiles used for the
 exports.
+
+The additional exports provided are:
+
+* Roads and tunnels
+* Geological layers and the veins included in them (pure data layer)
+* Animal and plant populations of regions (pure data layer)
 
 Usage
 -----
